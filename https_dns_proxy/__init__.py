@@ -9,6 +9,7 @@ from dnslib import QTYPE
 
 GOOGLE_DNS_URL = 'https://dns.google.com/resolve?'
 
+
 class HTTPSResolver(BaseResolver):
     
     def resolve(self, request, handler):
@@ -17,18 +18,18 @@ class HTTPSResolver(BaseResolver):
         lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
                                                           hostname,
                                                           ltype))
+        
         reply = request.reply()
         if lookup_resp.status_code == 200:
-            print lookup_resp.text
             try:
                 answer = json.loads(lookup_resp.text)['Answer']
                 for record in answer:
-                    print record
                     type = QTYPE[record['type']]
-                    reply.add_answer(*RR.fromZone("%s %s %s %s" % (str(record['name']),
-                                                                      record['TTL'],
-                                                                      type,
-                                                                      str(record['data']))))
+                    zone = "%s %s %s %s" % (str(record['name']),
+                                            record['TTL'],
+                                            type,
+                                            str(record['data']))
+                    reply.add_answer(*RR.fromZone(zone))
             except:
                 pass
 
