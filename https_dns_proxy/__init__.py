@@ -13,7 +13,10 @@ class HTTPSResolver(BaseResolver):
     
     def resolve(self, request, handler):
         hostname = '.'.join(request.q.qname.label)
-        lookup_resp = requests.get('%sname=%s' % (GOOGLE_DNS_URL, hostname))
+        ltype = request.q.qtype
+        lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
+                                                          hostname,
+                                                          ltype))
         reply = request.reply()
         if lookup_resp.status_code == 200:
             print lookup_resp.text
