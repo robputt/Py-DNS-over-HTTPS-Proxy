@@ -11,23 +11,23 @@ GOOGLE_DNS_URL = 'https://dns.google.com/resolve?'
 
 
 class HTTPSResolver(BaseResolver):
-    
+
     def resolve(self, request, handler):
         hostname = '.'.join(request.q.qname.label)
         ltype = request.q.qtype
         lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
                                                           hostname,
                                                           ltype))
-        
+
         reply = request.reply()
         if lookup_resp.status_code == 200:
             try:
                 answer = json.loads(lookup_resp.text)['Answer']
                 for record in answer:
-                    type = QTYPE[record['type']]
+                    rtype = QTYPE[record['type']]
                     zone = "%s %s %s %s" % (str(record['name']),
                                             record['TTL'],
-                                            type,
+                                            rtype,
                                             str(record['data']))
                     reply.add_answer(*RR.fromZone(zone))
             except:
