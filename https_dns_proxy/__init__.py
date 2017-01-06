@@ -1,6 +1,7 @@
 import time
 import requests
 import json
+import signal
 from dnslib.server import DNSServer
 from dnslib.server import BaseResolver
 from dnslib.server import DNSLogger
@@ -51,14 +52,16 @@ class DNSProxy(object):
                            logger=logger)
 
         server.start_thread()
-
         while self.is_running:
             # this just keeps the thing alive...
             time.sleep(5)
-
         server.stop()
+
+    def stop(self, signal, handler):
+        self.is_running = False
 
 
 if __name__ == "__main__":
     dns_proxy = DNSProxy()
+    signal.signal(signal.SIGINT, dns_proxy.stop)
     dns_proxy.run_dns_proxy()
