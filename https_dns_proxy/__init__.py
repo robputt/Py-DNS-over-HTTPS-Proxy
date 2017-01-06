@@ -8,7 +8,7 @@ from dnslib.server import DNSLogger
 from dnslib.server import RR
 from dnslib import QTYPE
 
-GOOGLE_DNS_URL = 'https://dns.google.com/resolve?'
+GOOGLE_DNS_URL = 'https://216.58.198.174/resolve?'
 
 
 class HTTPSResolver(BaseResolver):
@@ -16,9 +16,12 @@ class HTTPSResolver(BaseResolver):
     def resolve(self, request, handler):
         hostname = '.'.join(request.q.qname.label)
         ltype = request.q.qtype
+        headers = {"Host": "dns.google.com"}
         lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
                                                           hostname,
-                                                          ltype))
+                                                          ltype),
+                                   headers=headers,
+                                   verify=False)
 
         reply = request.reply()
         if lookup_resp.status_code == 200:
