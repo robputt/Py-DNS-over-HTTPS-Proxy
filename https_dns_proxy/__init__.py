@@ -61,7 +61,11 @@ class DNSProxy(object):
         self.is_running = False
 
 
-if __name__ == "__main__":
+def run():
     dns_proxy = DNSProxy()
     signal.signal(signal.SIGINT, dns_proxy.stop)
     dns_proxy.run_dns_proxy()
+
+
+if __name__ == "__main__":
+    run()
