@@ -36,16 +36,29 @@ class HTTPSResolver(BaseResolver):
         return reply
 
 
-resolver = HTTPSResolver()
-logger = DNSLogger()
+class DNSProxy(object):
 
-server = DNSServer(resolver,
-                   port=8053,
-                   address='localhost',
-                   logger=logger)
+    def __init__(self):
+        self.is_running = True
 
-server.start_thread()
+    def run_dns_proxy(self):
+        resolver = HTTPSResolver()
+        logger = DNSLogger()
 
-while True:
-    # this just keeps the thing alive...
-    time.sleep(5)
+        server = DNSServer(resolver,
+                           port=8053,
+                           address='localhost',
+                           logger=logger)
+
+        server.start_thread()
+
+        while self.is_running:
+            # this just keeps the thing alive...
+            time.sleep(5)
+
+        server.stop()
+
+
+if __name__ == "__main__":
+    dns_proxy = DNSProxy()
+    dns_proxy.run_dns_proxy()
