@@ -4,6 +4,7 @@ import json
 import signal
 import base64
 import os
+import datetime
 from dnslib.server import DNSServer
 from dnslib.server import BaseResolver
 from dnslib.server import DNSLogger
@@ -82,37 +83,51 @@ def new_HTTPAdapter_build_response(self, request, resp):
 HTTPAdapter.build_response = new_HTTPAdapter_build_response
 
 
+CACHE = {}
+
+
 class HTTPSResolver(BaseResolver):
 
     def resolve(self, request, handler):
         hostname = '.'.join(request.q.qname.label)
         ltype = request.q.qtype
         headers = {"Host": "dns.google.com"}
-        lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
+
+        try:
+            if CACHE[hostname]['dt'] > datetime.datetime.now() - datetime.timedelta(minutes=30):
+                print "Cache Hit: %s" % hostname
+                answer = CACHE[hostname][ltype]
+        except:
+            lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
                                                           hostname,
                                                           ltype),
                                    headers=headers,
                                    verify=False)
 
-        if PINNED_CERT != lookup_resp.peercert:
-            print ("WARNING: REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
-                   "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK")
-            my_pid = os.getpid()
-            os.kill(my_pid, signal.SIGINT)
+            if PINNED_CERT != lookup_resp.peercert:
+                print ("WARNING: REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
+                       "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK")
+                my_pid = os.getpid()
+                os.kill(my_pid, signal.SIGINT)
+
+            if lookup_resp.status_code == 200:
+                try:
+                    print "Cache Miss: %s" % hostname
+                    answer = json.loads(lookup_resp.text)['Answer']
+                    CACHE[hostname] = {ltype: answer, "dt": datetime.datetime.now()}
+                except:
+                    answer = []
+            else:
+                answer = []
 
         reply = request.reply()
-        if lookup_resp.status_code == 200:
-            try:
-                answer = json.loads(lookup_resp.text)['Answer']
-                for record in answer:
-                    rtype = QTYPE[record['type']]
-                    zone = "%s %s %s %s" % (str(record['name']),
-                                            record['TTL'],
-                                            rtype,
-                                            str(record['data']))
-                    reply.add_answer(*RR.fromZone(zone))
-            except:
-                pass
+        for record in answer:
+            rtype = QTYPE[record['type']]
+            zone = "%s %s %s %s" % (str(record['name']),
+                                    record['TTL'],
+                                    rtype,
+                                    str(record['data']))
+            reply.add_answer(*RR.fromZone(zone))
 
         return reply
 
