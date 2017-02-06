@@ -97,6 +97,10 @@ class HTTPSResolver(BaseResolver):
             if CACHE[hostname]['dt'] > datetime.datetime.now() - datetime.timedelta(minutes=30):
                 print "Cache Hit: %s" % hostname
                 answer = CACHE[hostname][ltype]
+            else:
+                print "Cache Expired: %s" % hostname
+                del CACHE[hostname]
+                raise Exception("Cache Expired")
         except:
             lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
                                                           hostname,
@@ -142,7 +146,7 @@ class DNSProxy(object):
         logger = DNSLogger()
 
         server = DNSServer(resolver,
-                           port=8053,
+                           port=53,
                            address='localhost',
                            logger=logger)
 
