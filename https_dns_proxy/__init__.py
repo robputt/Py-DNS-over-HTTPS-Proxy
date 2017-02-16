@@ -14,50 +14,49 @@ from dnslib import QTYPE
 
 GOOGLE_DNS_URL = 'https://216.58.212.110/resolve?'
 
-PINNED_CERT = ('MIIH4jCCBsqgAwIBAgIIJXUY9ZfcWb0wDQYJKoZIhvcNAQELBQAwSTELMAkGA1'
-               'UEBhMCVVMxEzARBgNVBAoTCkdvb2dsZSBJbmMxJTAjBgNVBAMTHEdvb2dsZSBJ'
-               'bnRlcm5ldCBBdXRob3JpdHkgRzIwHhcNMTcwMTI1MTAwOTE3WhcNMTcwNDE5MT'
-               'AwODAwWjBmMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQG'
-               'A1UEBwwNTW91bnRhaW4gVmlldzETMBEGA1UECgwKR29vZ2xlIEluYzEVMBMGA1'
-               'UEAwwMKi5nb29nbGUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC'
-               'AQEAqGt0nyLoUlNJjqwtDizLeD0ya1RxW45ZPq5p8u29GkRWXqObNNQ4HDWEjK'
-               'RtMxnWO5YbUKu5Vv+htAZdm4NoQ7Q2i8IllzmzBViVCoxJVSzwCY8eG8NaZMI4'
-               'eog4vVAUlD0seoYYONrS6NDtiNsnraliKGVo89ha4hiJcD7JFIQ5+v/EnnytPV'
-               'y6X1kQhootdb1gVzCazX5a0aRwH+AF2P2oeuJHyzyQyDN4VpZFDI52HWhzFWLE'
-               'KRv6yQwU4UgWtnEWWKsIU8tPyaEwtgbC2FuZJRU8NmRwM4yTHlgSqY08qGwbyg'
-               'afmrgaBrOu6lqXBtV4tZhbLOgBz/Q9dhOW8QIDAQABo4IErzCCBKswHQYDVR0l'
-               'BBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMIIDewYDVR0RBIIDcjCCA26CDCouZ2'
-               '9vZ2xlLmNvbYINKi5hbmRyb2lkLmNvbYIWKi5hcHBlbmdpbmUuZ29vZ2xlLmNv'
-               'bYISKi5jbG91ZC5nb29nbGUuY29tgg4qLmdjcC5ndnQyLmNvbYIWKi5nb29nbG'
-               'UtYW5hbHl0aWNzLmNvbYILKi5nb29nbGUuY2GCCyouZ29vZ2xlLmNsgg4qLmdv'
-               'b2dsZS5jby5pboIOKi5nb29nbGUuY28uanCCDiouZ29vZ2xlLmNvLnVrgg8qLm'
-               'dvb2dsZS5jb20uYXKCDyouZ29vZ2xlLmNvbS5hdYIPKi5nb29nbGUuY29tLmJy'
-               'gg8qLmdvb2dsZS5jb20uY2+CDyouZ29vZ2xlLmNvbS5teIIPKi5nb29nbGUuY2'
-               '9tLnRygg8qLmdvb2dsZS5jb20udm6CCyouZ29vZ2xlLmRlggsqLmdvb2dsZS5l'
-               'c4ILKi5nb29nbGUuZnKCCyouZ29vZ2xlLmh1ggsqLmdvb2dsZS5pdIILKi5nb2'
-               '9nbGUubmyCCyouZ29vZ2xlLnBsggsqLmdvb2dsZS5wdIISKi5nb29nbGVhZGFw'
-               'aXMuY29tgg8qLmdvb2dsZWFwaXMuY26CFCouZ29vZ2xlY29tbWVyY2UuY29tgh'
-               'EqLmdvb2dsZXZpZGVvLmNvbYIMKi5nc3RhdGljLmNugg0qLmdzdGF0aWMuY29t'
-               'ggoqLmd2dDEuY29tggoqLmd2dDIuY29tghQqLm1ldHJpYy5nc3RhdGljLmNvbY'
-               'IMKi51cmNoaW4uY29tghAqLnVybC5nb29nbGUuY29tghYqLnlvdXR1YmUtbm9j'
-               'b29raWUuY29tgg0qLnlvdXR1YmUuY29tghYqLnlvdXR1YmVlZHVjYXRpb24uY2'
-               '9tggsqLnl0aW1nLmNvbYIaYW5kcm9pZC5jbGllbnRzLmdvb2dsZS5jb22CC2Fu'
-               'ZHJvaWQuY29tghtkZXZlbG9wZXIuYW5kcm9pZC5nb29nbGUuY26CBGcuY2+CBm'
-               'dvby5nbIIUZ29vZ2xlLWFuYWx5dGljcy5jb22CCmdvb2dsZS5jb22CEmdvb2ds'
-               'ZWNvbW1lcmNlLmNvbYIKdXJjaGluLmNvbYIKd3d3Lmdvby5nbIIIeW91dHUuYm'
-               'WCC3lvdXR1YmUuY29tghR5b3V0dWJlZWR1Y2F0aW9uLmNvbTBoBggrBgEFBQcB'
-               'AQRcMFowKwYIKwYBBQUHMAKGH2h0dHA6Ly9wa2kuZ29vZ2xlLmNvbS9HSUFHMi'
-               '5jcnQwKwYIKwYBBQUHMAGGH2h0dHA6Ly9jbGllbnRzMS5nb29nbGUuY29tL29j'
-               'c3AwHQYDVR0OBBYEFNMp6FHWW26FI/jd/tr/araalJmdMAwGA1UdEwEB/wQCMA'
-               'AwHwYDVR0jBBgwFoAUSt0GFhu89mi1dvWBtrtiGrpagS8wIQYDVR0gBBowGDAM'
-               'BgorBgEEAdZ5AgUBMAgGBmeBDAECAjAwBgNVHR8EKTAnMCWgI6Ahhh9odHRwOi'
-               '8vcGtpLmdvb2dsZS5jb20vR0lBRzIuY3JsMA0GCSqGSIb3DQEBCwUAA4IBAQCP'
-               '+Ymn7/kBlTp/tv2PSy4cFeWHFwKhtWo2yrgI/IY3yyyTwoRUjQDeEDaSCH/x/H'
-               'AZ7U01uUln0jcVxQHTbRtZ7K6vV/Jxz8tw0d1VWNlwuLS+tiVl3UfVfceWea5F'
-               '3nKGIPEfLxx2dFVeBHgqllP/iYdLxulF0chEOCyn0KMqR3rfLhRf+PVww4lKhC'
-               '4nv4LRkPQEolq5qlCgEcLIWcaWGJahNUeYxEbkWraArgcuKledRsFnsvjOBH5+'
-               'O1Yoneg/nf2ZtEo/CEZuNczlSe/EZqujsocGQPHqMkwWP4uPWSTxh95W+tuoiN'
-               'yFRkQE/lEOm8Yx+0wWTbNdCO+v+/7s')
+PINNED_CERT = ('MIIH4jCCBsqgAwIBAgIIJURJ2M4nnrIwDQYJKoZIhvcNAQELBQAwSTELMAkGA1U'
+               'EBhMCVVMxEzARBgNVBAoTCkdvb2dsZSBJbmMxJTAjBgNVBAMTHEdvb2dsZSBJbn'
+               'Rlcm5ldCBBdXRob3JpdHkgRzIwHhcNMTcwMjAxMTM0NzE4WhcNMTcwNDI2MTMyM'
+               'TAwWjBmMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UE'
+               'BwwNTW91bnRhaW4gVmlldzETMBEGA1UECgwKR29vZ2xlIEluYzEVMBMGA1UEAww'
+               'MKi5nb29nbGUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhW'
+               'ayKI6kpw0lVhKVIq18f57ALtZCBFNmuE2C9TDYqZHloxfr48mA+/zOJ63Y7TJB+'
+               '3XfzD09HJTKPP44RAr7e96Q6zaMrTDVBDTmgORMn6qp10CK4lyKIWNfIv1glVnG'
+               'nVLVyiLbT7jqaF4vlzQMP/QBtgzpFZTnqJtHO0INJSguGOaV1+uCIZ3V9L3OCM9'
+               '+Eg84m+OLOjRPr5Bbq16CwXw1g6b5IYTT6jnZOwXtQE6JVIFzhmjPAkkCNRg9i+'
+               'hxXtwmNGR0Nj/rC358dKwQSsD4trrv0qX0I8ovazwx/TlHMA9j3u+OyiNkf/Tga'
+               'R6rCcPVDdC/YrCgZzSplvKB5wIDAQABo4IErzCCBKswHQYDVR0lBBYwFAYIKwYB'
+               'BQUHAwEGCCsGAQUFBwMCMIIDewYDVR0RBIIDcjCCA26CDCouZ29vZ2xlLmNvbYI'
+               'NKi5hbmRyb2lkLmNvbYIWKi5hcHBlbmdpbmUuZ29vZ2xlLmNvbYISKi5jbG91ZC'
+               '5nb29nbGUuY29tgg4qLmdjcC5ndnQyLmNvbYIWKi5nb29nbGUtYW5hbHl0aWNzL'
+               'mNvbYILKi5nb29nbGUuY2GCCyouZ29vZ2xlLmNsgg4qLmdvb2dsZS5jby5pboIO'
+               'Ki5nb29nbGUuY28uanCCDiouZ29vZ2xlLmNvLnVrgg8qLmdvb2dsZS5jb20uYXK'
+               'CDyouZ29vZ2xlLmNvbS5hdYIPKi5nb29nbGUuY29tLmJygg8qLmdvb2dsZS5jb2'
+               '0uY2+CDyouZ29vZ2xlLmNvbS5teIIPKi5nb29nbGUuY29tLnRygg8qLmdvb2dsZ'
+               'S5jb20udm6CCyouZ29vZ2xlLmRlggsqLmdvb2dsZS5lc4ILKi5nb29nbGUuZnKC'
+               'CyouZ29vZ2xlLmh1ggsqLmdvb2dsZS5pdIILKi5nb29nbGUubmyCCyouZ29vZ2x'
+               'lLnBsggsqLmdvb2dsZS5wdIISKi5nb29nbGVhZGFwaXMuY29tgg8qLmdvb2dsZW'
+               'FwaXMuY26CFCouZ29vZ2xlY29tbWVyY2UuY29tghEqLmdvb2dsZXZpZGVvLmNvb'
+               'YIMKi5nc3RhdGljLmNugg0qLmdzdGF0aWMuY29tggoqLmd2dDEuY29tggoqLmd2'
+               'dDIuY29tghQqLm1ldHJpYy5nc3RhdGljLmNvbYIMKi51cmNoaW4uY29tghAqLnV'
+               'ybC5nb29nbGUuY29tghYqLnlvdXR1YmUtbm9jb29raWUuY29tgg0qLnlvdXR1Ym'
+               'UuY29tghYqLnlvdXR1YmVlZHVjYXRpb24uY29tggsqLnl0aW1nLmNvbYIaYW5kc'
+               'm9pZC5jbGllbnRzLmdvb2dsZS5jb22CC2FuZHJvaWQuY29tghtkZXZlbG9wZXIu'
+               'YW5kcm9pZC5nb29nbGUuY26CBGcuY2+CBmdvby5nbIIUZ29vZ2xlLWFuYWx5dGl'
+               'jcy5jb22CCmdvb2dsZS5jb22CEmdvb2dsZWNvbW1lcmNlLmNvbYIKdXJjaGluLm'
+               'NvbYIKd3d3Lmdvby5nbIIIeW91dHUuYmWCC3lvdXR1YmUuY29tghR5b3V0dWJlZ'
+               'WR1Y2F0aW9uLmNvbTBoBggrBgEFBQcBAQRcMFowKwYIKwYBBQUHMAKGH2h0dHA6'
+               'Ly9wa2kuZ29vZ2xlLmNvbS9HSUFHMi5jcnQwKwYIKwYBBQUHMAGGH2h0dHA6Ly9'
+               'jbGllbnRzMS5nb29nbGUuY29tL29jc3AwHQYDVR0OBBYEFNu2vHcVGVm8ike6ur'
+               'NCMKN/zKzkMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUSt0GFhu89mi1dvWBt'
+               'rtiGrpagS8wIQYDVR0gBBowGDAMBgorBgEEAdZ5AgUBMAgGBmeBDAECAjAwBgNV'
+               'HR8EKTAnMCWgI6Ahhh9odHRwOi8vcGtpLmdvb2dsZS5jb20vR0lBRzIuY3JsMA0'
+               'GCSqGSIb3DQEBCwUAA4IBAQBsRcPps7oA5w+qoxYt4TOo1AX/xGaEKN6TCkuXMM'
+               '6/kqCt+KIkiGF6li9vs0ygLaURjW/spmEQq78yAvqtGxcFhczBXkSJTGoGlX/xj'
+               'dHlGVE2H9ZoEf8fE5erJnehvsEBjV3Dotbes1HzcmZiMX1vQfh8ZDxb6Ah+o/cp'
+               'Nonr8E7GZysgsIo0S7dy+NBGdpLK6TnGgh+u7X5dRN49grjp52Ltf3hLP64PN+n'
+               'MSOqXxfvKEwGUfSDZv8EPelp1wTdh/X+OTuYJPFLRKT1O5tSGLsBtsVpL5C23k/'
+               'fjSXqoiU9MYN3+XiJnKjN4rBWGiOnZa8bQ5lCJItCoXvM2wWGq')
 
 
 HTTPResponse = requests.packages.urllib3.response.HTTPResponse
@@ -109,6 +108,7 @@ class HTTPSResolver(BaseResolver):
                                    verify=False)
 
             if PINNED_CERT != lookup_resp.peercert:
+                print lookup_resp.peercert
                 print ("WARNING: REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
                        "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK")
                 my_pid = os.getpid()
@@ -146,7 +146,7 @@ class DNSProxy(object):
         logger = DNSLogger()
 
         server = DNSServer(resolver,
-                           port=53,
+                           port=8053,
                            address='localhost',
                            logger=logger)
 
