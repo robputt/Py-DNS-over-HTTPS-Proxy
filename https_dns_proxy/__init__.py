@@ -5,7 +5,7 @@ import signal
 import base64
 import os
 import datetime
-import ConfigParser
+from configparser import ConfigParser
 import sys
 from dnslib.server import DNSServer
 from dnslib.server import BaseResolver
@@ -14,10 +14,10 @@ from dnslib.server import RR
 from dnslib import QTYPE
 
 # read from config.ini
-myconfig = ConfigParser.ConfigParser()
+myconfig = ConfigParser()
 config_name = 'config.ini'
 config_path = os.path.join(sys.path[0], config_name)
-myconfig.readfp(open(config_path))
+myconfig.read_file(open(config_path))
 
 if len(sys.argv) == 2:
     ENVIRONMENT=str(sys.argv[1])
@@ -58,16 +58,16 @@ CACHE = {}
 class HTTPSResolver(BaseResolver):
 
     def resolve(self, request, handler):
-        hostname = '.'.join(request.q.qname.label)
+        hostname = str(request.q.qname)
         ltype = request.q.qtype
         headers = {"Host": "dns.google.com"}
 
         try:
             if CACHE[hostname]['dt'] > datetime.datetime.now() - datetime.timedelta(minutes=30):
-                print "Cache Hit: %s" % hostname
+                print("Cache Hit: %s" % hostname)
                 answer = CACHE[hostname][ltype]
             else:
-                print "Cache Expired: %s" % hostname
+                print("Cache Expired: %s" % hostname)
                 del CACHE[hostname]
                 raise Exception("Cache Expired")
         except:
@@ -78,7 +78,7 @@ class HTTPSResolver(BaseResolver):
                                    verify=False)
 
             if PINNED_CERT != lookup_resp.peercert:
-                print lookup_resp.peercert
+                print(lookup_resp.peercert)
                 if EXIT_ON_MITM:
                     print ("ERROR: REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
                            "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK")
@@ -91,7 +91,7 @@ class HTTPSResolver(BaseResolver):
 
             if lookup_resp.status_code == 200:
                 try:
-                    print "Cache Miss: %s" % hostname
+                    print("Cache Miss: %s" % hostname)
                     answer = json.loads(lookup_resp.text)['Answer']
                     CACHE[hostname] = {ltype: answer, "dt": datetime.datetime.now()}
                 except:
