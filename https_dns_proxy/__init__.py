@@ -25,7 +25,7 @@ else:
     ENVIRONMENT='DNS1'
 
 GOOGLE_DNS_URL = myconfig.get(ENVIRONMENT, 'GOOGLE_DNS_URL')
-PINNED_CERT = myconfig.get(ENVIRONMENT, 'PINNED_CERT')
+PINNED_CERT = myconfig.get(ENVIRONMENT, 'PINNED_CERT').encode('utf-8')
 DNS_PORT = int(myconfig.get(ENVIRONMENT, 'DNS_PORT'))
 EXIT_ON_MITM = myconfig.get(ENVIRONMENT, 'EXIT_ON_MITM')
 
