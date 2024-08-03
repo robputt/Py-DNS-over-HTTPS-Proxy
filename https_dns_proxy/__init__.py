@@ -151,7 +151,7 @@ class DNSProxy(object):
 
 
 def run():
-    logging.info("DNS Proxy Listening on Port 8053")
+    logging.info("DNS Proxy Listening on Port %s" % DNS_PORT)
     logging.info("Test using following DIG command...")
     logging.info("dig @localhost -p8053 google.com")
     dns_proxy = DNSProxy()
