@@ -3,11 +3,17 @@ from setuptools import setup, find_packages
 
 setup(
     name="https_dns_proxy",
-    description='Proxies UDP DNS requests to Google DNS over HTTPS Service',
-    long_description='Proxies UDP DNS requests to Google DNS over HTTPS Service',
-    version="1.0.0",
+    description=(
+        "Proxies UDP DNS requests to Google DNS"
+        " over HTTPS Service"
+    ),
+    long_description=(
+        "Proxies UDP DNS requests to Google DNS"
+        " over HTTPS Service"
+    ),
+    version="1.0.1",
     packages=find_packages(),
-    entry_points = {
+    entry_points={
         'console_scripts': ['https_dns_proxy=https_dns_proxy:run'],
     },
     install_requires=[
