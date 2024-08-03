@@ -85,6 +85,7 @@ class HTTPSResolver(BaseResolver):
                     hostname,
                     ltype
                 ),
+                allow_redirects=False,
                 headers=headers,
                 verify=False
             )
