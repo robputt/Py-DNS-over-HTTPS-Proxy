@@ -27,9 +27,9 @@ config_path = os.path.join(sys.path[0], config_name)
 myconfig.read_file(open(config_path))
 
 if len(sys.argv) == 2:
-    ENVIRONMENT=str(sys.argv[1])
+    ENVIRONMENT = str(sys.argv[1])
 else:
-    ENVIRONMENT='DNS1'
+    ENVIRONMENT = 'DNS1'
 
 GOOGLE_DNS_URL = myconfig.get(ENVIRONMENT, 'GOOGLE_DNS_URL')
 PINNED_CERT = myconfig.get(ENVIRONMENT, 'PINNED_CERT').encode('utf-8')
@@ -39,17 +39,23 @@ EXIT_ON_MITM = myconfig.get(ENVIRONMENT, 'EXIT_ON_MITM')
 
 HTTPResponse = requests.packages.urllib3.response.HTTPResponse
 orig_HTTPResponse__init__ = HTTPResponse.__init__
+
+
 def new_HTTPResponse__init__(self, *args, **kwargs):
     orig_HTTPResponse__init__(self, *args, **kwargs)
     try:
-        self.peercert = base64.b64encode(self._connection.sock.getpeercert(True))
+        self.peercert = base64.b64encode(
+            self._connection.sock.getpeercert(True)
+        )
     except AttributeError:
         pass
+
+
 HTTPResponse.__init__ = new_HTTPResponse__init__
-
-
 HTTPAdapter = requests.adapters.HTTPAdapter
 orig_HTTPAdapter_build_response = HTTPAdapter.build_response
+
+
 def new_HTTPAdapter_build_response(self, request, resp):
     response = orig_HTTPAdapter_build_response(self, request, resp)
     try:
@@ -57,9 +63,9 @@ def new_HTTPAdapter_build_response(self, request, resp):
     except AttributeError:
         pass
     return response
+
+
 HTTPAdapter.build_response = new_HTTPAdapter_build_response
-
-
 CACHE = {}
 
 
@@ -71,14 +77,15 @@ class HTTPSResolver(BaseResolver):
         headers = {"Host": "dns.google"}
 
         try:
-            if CACHE[hostname]['dt'] > datetime.datetime.now() - datetime.timedelta(minutes=5):
+            ttl = datetime.datetime.now() - datetime.timedelta(minutes=5)
+            if CACHE[hostname]['dt'] > ttl:
                 logging.info("Cache Hit: %s" % hostname)
                 answer = CACHE[hostname][ltype]
             else:
                 logging.info("Cache Expired: %s" % hostname)
                 del CACHE[hostname]
                 raise Exception("Cache Expired")
-        except:
+        except Exception:
             lookup_resp = requests.get(
                 '%sname=%s&type=%s' % (
                     GOOGLE_DNS_URL,
@@ -93,21 +100,28 @@ class HTTPSResolver(BaseResolver):
             if PINNED_CERT != lookup_resp.peercert:
                 logging.info(lookup_resp.peercert)
                 if EXIT_ON_MITM:
-                    logging.error("REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
-                           "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK")
+                    logging.error(
+                        "REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
+                        "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK"
+                    )
                     my_pid = os.getpid()
                     os.kill(my_pid, signal.SIGINT)
                 else:
-                    logging.warning("REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
-                           "SSL CERT. NOT EXITING, BECAUSE YOU SAID SO IN YOUR CONFIG")
-
+                    logging.warning(
+                        "REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
+                        "SSL CERT. NOT EXITING, BECAUSE YOU SAID SO IN YOUR "
+                        "CONFIG"
+                    )
 
             if lookup_resp.status_code == 200:
                 try:
                     logging.info("Cache Miss: %s" % hostname)
                     answer = json.loads(lookup_resp.text)['Answer']
-                    CACHE[hostname] = {ltype: answer, "dt": datetime.datetime.now()}
-                except:
+                    CACHE[hostname] = {
+                        ltype: answer,
+                        "dt": datetime.datetime.now()
+                    }
+                except Exception:
                     answer = []
             else:
                 answer = []
