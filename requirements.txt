@@ -1,0 +1,3 @@
+configparser==7.0.0
+dnslib==0.9.25
+requests==2.19.0

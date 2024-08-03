@@ -5,15 +5,22 @@ import signal
 import base64
 import os
 import datetime
-from configparser import ConfigParser
 import sys
+import logging
+
+from configparser import ConfigParser
+
 from dnslib.server import DNSServer
 from dnslib.server import BaseResolver
 from dnslib.server import DNSLogger
 from dnslib.server import RR
 from dnslib import QTYPE
 
-# read from config.ini
+
+# Configure logger
+logging.basicConfig(level=logging.INFO)
+
+# Read from config file.
 myconfig = ConfigParser()
 config_name = 'config.ini'
 config_path = os.path.join(sys.path[0], config_name)
@@ -28,6 +35,7 @@ GOOGLE_DNS_URL = myconfig.get(ENVIRONMENT, 'GOOGLE_DNS_URL')
 PINNED_CERT = myconfig.get(ENVIRONMENT, 'PINNED_CERT').encode('utf-8')
 DNS_PORT = int(myconfig.get(ENVIRONMENT, 'DNS_PORT'))
 EXIT_ON_MITM = myconfig.get(ENVIRONMENT, 'EXIT_ON_MITM')
+
 
 HTTPResponse = requests.packages.urllib3.response.HTTPResponse
 orig_HTTPResponse__init__ = HTTPResponse.__init__
@@ -60,38 +68,42 @@ class HTTPSResolver(BaseResolver):
     def resolve(self, request, handler):
         hostname = str(request.q.qname)
         ltype = request.q.qtype
-        headers = {"Host": "dns.google.com"}
+        headers = {"Host": "dns.google"}
 
         try:
-            if CACHE[hostname]['dt'] > datetime.datetime.now() - datetime.timedelta(minutes=30):
-                print("Cache Hit: %s" % hostname)
+            if CACHE[hostname]['dt'] > datetime.datetime.now() - datetime.timedelta(minutes=5):
+                logging.info("Cache Hit: %s" % hostname)
                 answer = CACHE[hostname][ltype]
             else:
-                print("Cache Expired: %s" % hostname)
+                logging.info("Cache Expired: %s" % hostname)
                 del CACHE[hostname]
                 raise Exception("Cache Expired")
         except:
-            lookup_resp = requests.get('%sname=%s&type=%s' % (GOOGLE_DNS_URL,
-                                                          hostname,
-                                                          ltype),
-                                   headers=headers,
-                                   verify=False)
+            lookup_resp = requests.get(
+                '%sname=%s&type=%s' % (
+                    GOOGLE_DNS_URL,
+                    hostname,
+                    ltype
+                ),
+                headers=headers,
+                verify=False
+            )
 
             if PINNED_CERT != lookup_resp.peercert:
-                print(lookup_resp.peercert)
+                logging.info(lookup_resp.peercert)
                 if EXIT_ON_MITM:
-                    print ("ERROR: REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
+                    logging.error("REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
                            "SSL CERT, EXITING IN CASE OF MAN IN THE MIDDLE ATTACK")
                     my_pid = os.getpid()
                     os.kill(my_pid, signal.SIGINT)
                 else:
-                    print ("WARNING: REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
+                    logging.warning("REMOTE SSL CERT DID NOT MATCH EXPECTED (PINNED) "
                            "SSL CERT. NOT EXITING, BECAUSE YOU SAID SO IN YOUR CONFIG")
 
 
             if lookup_resp.status_code == 200:
                 try:
-                    print("Cache Miss: %s" % hostname)
+                    logging.info("Cache Miss: %s" % hostname)
                     answer = json.loads(lookup_resp.text)['Answer']
                     CACHE[hostname] = {ltype: answer, "dt": datetime.datetime.now()}
                 except:
@@ -139,6 +151,9 @@ class DNSProxy(object):
 
 
 def run():
+    logging.info("DNS Proxy Listening on Port %s" % DNS_PORT)
+    logging.info("Test using following DIG command...")
+    logging.info("dig @localhost -p8053 google.com")
     dns_proxy = DNSProxy()
     signal.signal(signal.SIGINT, dns_proxy.stop)
     dns_proxy.run_dns_proxy()

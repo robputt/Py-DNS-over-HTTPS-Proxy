@@ -6,12 +6,13 @@ Recently I wrote a blog post which probably gives you just enough information to
 Configuration can be easily done with virtualenv:
 
 ```
-virtualenv dns_proxy
+python -m venv dns_proxy
 cd dns_proxy/
 source bin/activate
-pip install configparser dnslib requests
 git clone https://github.com/robputt796/Py-DNS-over-HTTPS-Proxy.git
-cat Py-DNS-over-HTTPS-Proxy/https_dns_proxy/config.ini
-python Py-DNS-over-HTTPS-Proxy/https_dns_proxy/__init__.py &
+cd Py-DNS-over-HTTPS-Proxy
+pip install -r requirements.txt
+cat https_dns_proxy/config.ini
+python https_dns_proxy/__init__.py &
 dig @localhost -p8053 A robertputt.co.uk
 ```
