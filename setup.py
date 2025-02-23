@@ -18,7 +18,7 @@ setup(
     },
     install_requires=[
         'configparser==7.0.0',
-        'requests==2.19.0',
+        'requests==2.32.3',
         'dnslib==0.9.25'
     ],
     python_requires='>=3.8'
